@@ -85,7 +85,7 @@ html, body{
 
 .winner>.bracket-name, .winner>.bracket-score{
   font-weight: bold;
-  color: #D07030;
+  color: #00A300;
 }
 
 .bracket-team:hover{
