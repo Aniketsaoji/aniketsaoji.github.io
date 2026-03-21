@@ -52,14 +52,35 @@
       </section>
 
       <section class="home-substack">
-        <h2>Substack</h2>
-        <iframe src="https://aniketsaoji.substack.com/embed"
-                width="100%"
-                height="200"
-                frameborder="0"
-                scrolling="no"></iframe>
+        <h2>Writing</h2>
+        <div id="substack-posts">Loading posts…</div>
       </section>
     </div>
   </main>
+
+  <script>
+    (async () => {
+      const rss = encodeURIComponent('https://aniketsaoji.substack.com/feed');
+      const url = `https://api.rss2json.com/v1/api.json?rss_url=${rss}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const posts = (data.items || []).slice(0, 4);
+        const container = document.getElementById('substack-posts');
+        if (!posts.length) { container.textContent = 'No posts yet.'; return; }
+        container.innerHTML = posts.map(p => `
+          <a class="substack-card" href="${p.link}" target="_blank" rel="noopener">
+            ${p.thumbnail ? `<img class="substack-thumb" src="${p.thumbnail}" alt="">` : ''}
+            <span class="substack-text">
+              <span class="substack-title">${p.title}</span>
+              <span class="substack-date">${new Date(p.pubDate).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</span>
+            </span>
+          </a>
+        `).join('');
+      } catch {
+        document.getElementById('substack-posts').textContent = 'Could not load posts.';
+      }
+    })();
+  </script>
 </body>
 </html>

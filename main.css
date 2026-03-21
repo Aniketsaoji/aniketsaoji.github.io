@@ -155,10 +155,54 @@ body.home {
   margin: 0 0 1.25rem;
 }
 
-.home-substack iframe {
+#substack-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.substack-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem;
   border: 1px solid #e8e8e8;
   border-radius: 6px;
-  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s;
+  overflow: hidden;
+}
+
+.substack-card:hover {
+  border-color: #bbb;
+}
+
+.substack-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.substack-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.substack-title {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.substack-date {
+  font-size: 0.75rem;
+  color: #999;
 }
 
 .header{
