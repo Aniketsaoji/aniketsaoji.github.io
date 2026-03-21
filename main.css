@@ -182,6 +182,8 @@ body.home {
 .substack-thumb {
   width: 64px;
   height: 64px;
+  max-width: 64px;
+  max-height: 64px;
   object-fit: cover;
   border-radius: 4px;
   flex-shrink: 0;
