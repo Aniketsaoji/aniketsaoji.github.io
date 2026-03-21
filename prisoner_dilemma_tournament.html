@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Prisoner's Dilemma</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --coop: #00d4aa;
+    --defect: #ff4466;
+    --accent: #7c6fef;
+    --text: #e8e8f0;
+    --muted: #888899;
+    --gold: #f5c842;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* ─── NAVBAR ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+  }
+  nav .logo { font-weight: 700; font-size: 1rem; color: var(--coop); letter-spacing: 0.05em; }
+  nav ul { list-style: none; display: flex; gap: 1.5rem; }
+  nav ul a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  nav ul a:hover { color: var(--text); }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 6rem 1.5rem; max-width: 960px; margin: 0 auto; }
+  section:first-of-type { padding-top: 8rem; }
+
+  h2 {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700; margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--coop) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; }
+  p { color: var(--muted); margin-bottom: 1rem; }
+  p strong { color: var(--text); }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    padding: 56px 1.5rem 4rem;
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (max-width: 760px) {
+    #hero { grid-template-columns: 1fr; padding-top: 72px; }
+    #hero .hero-right { display: none; }
+  }
+  #hero .eyebrow {
+    font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--coop); margin-bottom: 0.75rem; display: block;
+  }
+  #hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800; line-height: 1.08;
+    background: linear-gradient(135deg, #fff 0%, var(--coop) 55%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+  #hero .subtitle {
+    font-size: 1rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.7;
+  }
+  .origin-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.25rem; margin-bottom: 1.75rem;
+    font-size: 0.9rem; color: var(--muted); line-height: 1.6;
+  }
+  .origin-box strong { color: var(--text); }
+  .hero-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.7rem 1.4rem; border-radius: 8px; font-size: 0.9rem;
+    font-weight: 600; cursor: pointer; border: none; text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--coop); color: #000;
+    box-shadow: 0 0 20px rgba(0,212,170,0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 0 32px rgba(0,212,170,0.5); }
+  .btn-accent {
+    background: rgba(124,111,239,0.2); color: var(--accent);
+    border: 1px solid rgba(124,111,239,0.4);
+  }
+  .btn-accent:hover { background: rgba(124,111,239,0.35); }
+  .btn-outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--coop); color: var(--coop); }
+
+  /* hero right panel */
+  .hero-right { display: flex; flex-direction: column; gap: 1rem; }
+  .hero-matrix-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.25rem;
+  }
+  .hero-matrix-wrap h4 {
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.75rem; text-align: center;
+  }
+  .hero-cta-trio { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+  .trio-card {
+    position: relative; overflow: hidden;
+    border-radius: 12px; padding: 1.1rem 0.75rem 1rem; text-align: center;
+    text-decoration: none;
+    display: block; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .trio-card::before {
+    content: ''; position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.25s;
+    border-radius: 12px;
+  }
+  .trio-card:hover { transform: translateY(-3px); }
+  .trio-card:active { transform: scale(0.97); }
+
+  .trio-card.t-play {
+    background: linear-gradient(135deg, rgba(0,212,170,0.18) 0%, rgba(0,212,170,0.06) 100%);
+    border: 1px solid rgba(0,212,170,0.4);
+    box-shadow: 0 0 0 rgba(0,212,170,0);
+  }
+  .trio-card.t-play:hover {
+    box-shadow: 0 6px 24px rgba(0,212,170,0.25);
+    border-color: var(--coop);
+  }
+  .trio-card.t-play .trio-label { color: var(--coop); }
+  .trio-card.t-play .trio-arrow { color: var(--coop); }
+
+  .trio-card.t-tournament {
+    background: linear-gradient(135deg, rgba(245,200,66,0.18) 0%, rgba(245,200,66,0.06) 100%);
+    border: 1px solid rgba(245,200,66,0.4);
+  }
+  .trio-card.t-tournament:hover {
+    box-shadow: 0 6px 24px rgba(245,200,66,0.2);
+    border-color: var(--gold);
+  }
+  .trio-card.t-tournament .trio-label { color: var(--gold); }
+  .trio-card.t-tournament .trio-arrow { color: var(--gold); }
+
+  .trio-card.t-strats {
+    background: linear-gradient(135deg, rgba(124,111,239,0.18) 0%, rgba(124,111,239,0.06) 100%);
+    border: 1px solid rgba(124,111,239,0.4);
+  }
+  .trio-card.t-strats:hover {
+    box-shadow: 0 6px 24px rgba(124,111,239,0.2);
+    border-color: var(--accent);
+  }
+  .trio-card.t-strats .trio-label { color: var(--accent); }
+  .trio-card.t-strats .trio-arrow { color: var(--accent); }
+
+  .trio-card .trio-icon { font-size: 1.6rem; margin-bottom: 0.35rem; display: block; }
+  .trio-card .trio-label { font-size: 0.8rem; font-weight: 800; display: block; letter-spacing: 0.03em; margin-bottom: 0.2rem; }
+  .trio-card .trio-sub { font-size: 0.68rem; color: var(--muted); display: block; line-height: 1.4; }
+  .trio-card .trio-arrow { font-size: 0.7rem; margin-top: 0.5rem; display: block; opacity: 0; transform: translateX(-4px); transition: opacity 0.2s, transform 0.2s; }
+  .trio-card:hover .trio-arrow { opacity: 1; transform: translateX(0); }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* ─── PAYOFF MATRIX ─── */
+  .matrix-wrap { overflow-x: auto; margin: 2rem 0; }
+  table.matrix {
+    border-collapse: separate; border-spacing: 4px;
+    margin: 0 auto; min-width: 340px;
+  }
+  table.matrix th {
+    padding: 0.6rem 1.2rem; font-size: 0.85rem;
+    color: var(--muted); font-weight: 600; text-align: center;
+  }
+  table.matrix td {
+    padding: 1rem 1.5rem; border-radius: 8px; text-align: center;
+    font-weight: 700; font-size: 1rem;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  td.cc { border-color: var(--coop); color: var(--coop); }
+  td.cd { border-color: var(--defect); }
+  td.dc { border-color: var(--defect); }
+  td.dd { border-color: var(--muted); color: var(--muted); }
+  td .p1 { color: var(--coop); }
+  td .p2 { color: var(--defect); }
+  .matrix-label { font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: 0.5rem; }
+
+  /* ─── INFO CARDS ─── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 2rem 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card .icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+  .card h3 { color: var(--text); margin-bottom: 0.35rem; }
+  .card p { font-size: 0.9rem; margin: 0; }
+
+  /* ─── PLAY SECTION ─── */
+  .play-container {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    align-items: start;
+  }
+  @media (max-width: 680px) { .play-container { grid-template-columns: 1fr; } }
+
+  .player-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; text-align: center;
+  }
+  .player-card .player-label { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+  .player-card .player-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+  .player-card .score-big { font-size: 3rem; font-weight: 800; color: var(--coop); line-height: 1; }
+  .player-card .score-label { font-size: 0.8rem; color: var(--muted); }
+  .player-card select {
+    width: 100%; padding: 0.5rem; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+    font-size: 0.9rem; margin-bottom: 1rem; cursor: pointer;
+  }
+
+  .move-btns { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1rem; }
+  .btn-coop {
+    background: rgba(0,212,170,0.15); color: var(--coop);
+    border: 1px solid var(--coop); padding: 0.75rem 1.5rem;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+  .btn-coop:hover { background: rgba(0,212,170,0.3); }
+  .btn-defect {
+    background: rgba(255,68,102,0.15); color: var(--defect);
+    border: 1px solid var(--defect); padding: 0.75rem 1.5rem;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+  .btn-defect:hover { background: rgba(255,68,102,0.3); }
+  .btn-coop:disabled, .btn-defect:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .round-info {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem;
+  }
+  .round-info h3 { margin-bottom: 0.75rem; }
+  #round-log {
+    font-family: monospace; font-size: 0.85rem;
+    max-height: 200px; overflow-y: auto;
+    display: flex; flex-direction: column-reverse; gap: 2px;
+  }
+  .log-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.3rem 0.5rem; border-radius: 4px;
+    background: var(--surface2);
+  }
+  .log-round { color: var(--muted); min-width: 28px; }
+  .move-c { color: var(--coop); font-weight: 700; }
+  .move-d { color: var(--defect); font-weight: 700; }
+  .log-pts { margin-left: auto; color: var(--muted); font-size: 0.8rem; }
+
+  .outcome-flash {
+    text-align: center; margin-top: 1rem; min-height: 2rem;
+    font-weight: 700; font-size: 1.1rem; transition: opacity 0.4s;
+  }
+  .game-over-banner {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem; text-align: center; margin-top: 1rem;
+  }
+  .game-over-banner .result-emoji { font-size: 2.5rem; }
+  .game-over-banner .result-text { font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.25rem; }
+  .game-over-banner .result-sub { font-size: 0.9rem; color: var(--muted); }
+
+  /* ─── TOURNAMENT ─── */
+  .tournament-controls { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 2rem; }
+  .tournament-controls label { color: var(--muted); font-size: 0.9rem; }
+  .tournament-controls input[type=number] {
+    width: 80px; padding: 0.4rem 0.6rem; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.9rem;
+  }
+
+  #tournament-results { display: none; }
+  .t-result-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.5rem 0; border-bottom: 1px solid var(--border);
+    animation: fadeSlide 0.3s ease both;
+  }
+  @keyframes fadeSlide { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:none; } }
+  .t-rank { min-width: 28px; text-align: right; color: var(--muted); font-size: 0.85rem; font-weight: 700; }
+  .t-rank.gold { color: var(--gold); }
+  .t-rank.silver { color: #aaa; }
+  .t-rank.bronze { color: #cd7f32; }
+  .t-name { min-width: 180px; font-weight: 600; }
+  .t-bar-wrap { flex: 1; background: var(--surface2); border-radius: 4px; height: 10px; overflow: hidden; }
+  .t-bar { height: 100%; background: var(--coop); border-radius: 4px; width: 0; transition: width 0.6s ease; }
+  .t-pct { min-width: 52px; text-align: right; font-size: 0.9rem; font-weight: 700; color: var(--coop); }
+  .t-pts { min-width: 90px; text-align: right; font-size: 0.8rem; color: var(--muted); }
+
+  .matchup-grid {
+    display: grid;
+    gap: 2px;
+    margin-top: 2rem;
+    overflow-x: auto;
+  }
+  .matchup-cell {
+    width: 28px; height: 28px; border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 700; cursor: default;
+    transition: transform 0.1s;
+  }
+  .matchup-cell:hover { transform: scale(1.3); z-index: 1; }
+  .matchup-header { font-size: 0.6rem; color: var(--muted); writing-mode: vertical-lr; transform: rotate(180deg); text-align: center; padding: 4px 0; }
+
+  /* ─── STRATEGIES ─── */
+  .strategy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .strat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .strat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .strat-tag {
+    display: inline-block; font-size: 0.7rem; font-weight: 700;
+    padding: 0.2rem 0.6rem; border-radius: 20px; margin-bottom: 0.5rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .tag-coop { background: rgba(0,212,170,0.15); color: var(--coop); }
+  .tag-defect { background: rgba(255,68,102,0.15); color: var(--defect); }
+  .tag-adaptive { background: rgba(124,111,239,0.15); color: var(--accent); }
+  .tag-random { background: rgba(245,200,66,0.15); color: var(--gold); }
+  .strat-card h3 { font-size: 1rem; margin-bottom: 0.35rem; }
+  .strat-card p { font-size: 0.85rem; margin: 0; }
+
+  /* ─── WHY IT MATTERS ─── */
+  .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 2rem 0; }
+  .why-card {
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border-radius: 0 10px 10px 0;
+  }
+  .why-card h3 { color: var(--text); margin-bottom: 0.25rem; }
+  .why-card p { font-size: 0.9rem; margin: 0; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center; padding: 3rem 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 0.85rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ─── MISC ─── */
+  .tag-line {
+    display: inline-block; background: rgba(124,111,239,0.15);
+    border: 1px solid rgba(124,111,239,0.3);
+    color: var(--accent); padding: 0.3rem 0.9rem;
+    border-radius: 20px; font-size: 0.85rem; margin-bottom: 2.5rem;
+  }
+  .section-label {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.5rem;
+  }
+
+  #play-status { text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">Prisoner's Dilemma</span>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#play">Play</a></li>
+    <li><a href="#tournament">Tournament</a></li>
+    <li><a href="#strategies">Strategies</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <!-- LEFT: story + CTAs -->
+  <div class="hero-left">
+    <span class="eyebrow">Game Theory · Strategy · Cooperation</span>
+    <h1>The Prisoner's<br>Dilemma</h1>
+    <p class="subtitle">
+      Two players. Two choices — <strong style="color:var(--coop)">Cooperate</strong> or <strong style="color:var(--defect)">Defect</strong>.
+      No communication. The catch: acting in pure self-interest makes <em>both</em> players worse off.
+      It's one of the most studied problems in all of game theory — and it shows up everywhere.
+    </p>
+
+    <div class="origin-box">
+      This started as a <strong>business school game theory class</strong>. The assignment: design
+      a strategy to win a real in-class Prisoner's Dilemma tournament against your classmates.
+      Before submitting, I built this simulation — running every strategy head-to-head to find out
+      which approach actually wins. <strong>The results were surprising.</strong>
+    </div>
+
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="#play">🎮 Play vs. a Strategy</a>
+      <a class="btn btn-accent" href="#tournament">⚡ Run Tournament</a>
+      <a class="btn btn-outline" href="#strategies">View Strategies</a>
+    </div>
+  </div>
+
+  <!-- RIGHT: matrix + quick-nav tiles -->
+  <div class="hero-right">
+    <div class="hero-matrix-wrap">
+      <h4>Payoff Matrix — Points per Round</h4>
+      <table class="matrix" style="width:100%">
+        <tr>
+          <th></th>
+          <th>They Cooperate</th>
+          <th>They Defect</th>
+        </tr>
+        <tr>
+          <th>You Cooperate</th>
+          <td class="cc"><span class="p1">+3</span> / <span class="p2">+3</span><br><small style="color:var(--muted);font-weight:400">Mutual trust</small></td>
+          <td class="cd"><span class="p1">+0</span> / <span class="p2">+5</span><br><small style="color:var(--muted);font-weight:400">You get burned</small></td>
+        </tr>
+        <tr>
+          <th>You Defect</th>
+          <td class="dc"><span class="p1">+5</span> / <span class="p2">+0</span><br><small style="color:var(--muted);font-weight:400">You exploit them</small></td>
+          <td class="dd"><span class="p1">+1</span> / <span class="p2">+1</span><br><small style="color:var(--muted);font-weight:400">Mutual punishment</small></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="hero-cta-trio">
+      <a class="trio-card t-play" href="#play">
+        <span class="trio-icon">🎮</span>
+        <span class="trio-label">Play</span>
+        <span class="trio-sub">Go head-to-head against a strategy</span>
+        <span class="trio-arrow">→ Start now</span>
+      </a>
+      <a class="trio-card t-tournament" href="#tournament">
+        <span class="trio-icon">🏆</span>
+        <span class="trio-label">Tournament</span>
+        <span class="trio-sub">Run all 9 strategies against each other</span>
+        <span class="trio-arrow">→ Run it</span>
+      </a>
+      <a class="trio-card t-strats" href="#strategies">
+        <span class="trio-icon">🧠</span>
+        <span class="trio-label">Strategies</span>
+        <span class="trio-sub">See who wins and understand why</span>
+        <span class="trio-arrow">→ Explore</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">The Game</p>
+  <h2>Why is this a dilemma?</h2>
+  <p>
+    Imagine two suspects in separate rooms. Each must choose: <strong>stay silent (Cooperate)</strong> or
+    <strong>betray the other (Defect)</strong>. They can't communicate. The cruel logic: no matter what the
+    other person does, defecting always gives <em>you</em> a higher individual payoff. So both rational
+    players defect — and both end up worse off than if they'd cooperated.
+  </p>
+  <p>
+    This is the trap. <strong>Individual rationality produces collective irrationality.</strong>
+    It's called a Nash Equilibrium — neither player can improve their outcome by changing their choice alone,
+    yet the outcome is terrible for both.
+  </p>
+  <p>
+    But what happens when you play many rounds and can <em>remember</em> what your opponent did? That's the
+    iterated game — and it changes everything. Reputation, reciprocity, and punishment become possible.
+    Cooperation can emerge even among purely self-interested players.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🧩</div>
+      <h3>The Nash Trap</h3>
+      <p>Defecting is the "dominant strategy" — better for you regardless of what they do. Yet mutual defection (+1/+1) is worse than mutual cooperation (+3/+3).</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔁</div>
+      <h3>The Iterated Game</h3>
+      <p>Play it repeatedly and memory changes the math. A player who punishes betrayal and rewards cooperation can enforce mutual trust over time.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🏛️</div>
+      <h3>Axelrod's Tournament</h3>
+      <p>In 1980, Robert Axelrod ran a real computer tournament. The winner — submitted by a game theorist — was the simplest strategy entered: <strong>Tit for Tat</strong>.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🌍</div>
+      <h3>Everywhere You Look</h3>
+      <p>Arms races. Climate negotiations. Price wars. Splitting the bill. The Prisoner's Dilemma describes the structure of most of the world's hardest cooperation problems.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PLAY -->
+<section id="play">
+  <p class="section-label">Interactive</p>
+  <h2>Play Against a Strategy</h2>
+  <p>Pick your opponent, then choose Cooperate or Defect each round. Play 10 rounds and see who comes out ahead.</p>
+
+  <div class="play-container">
+    <div>
+      <div class="player-card" id="player-you">
+        <div class="player-label">You</div>
+        <div class="player-name">Human Player</div>
+        <div class="score-big" id="score-you">0</div>
+        <div class="score-label">points</div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <div class="player-card">
+          <div class="player-label">Opponent</div>
+          <select id="opponent-select">
+            <option value="TitForTat">Tit for Tat</option>
+            <option value="AlwaysC">Always Cooperate</option>
+            <option value="AlwaysD">Always Defect</option>
+            <option value="GrimTrigger">Grim Trigger</option>
+            <option value="Pavlov">Pavlov</option>
+            <option value="SoftMajority">Soft Majority</option>
+            <option value="HardMajority">Hard Majority</option>
+            <option value="GoRandom">Random</option>
+            <option value="TenPercentTFT">Forgiving TFT</option>
+          </select>
+          <div class="player-name" id="opponent-name">Tit for Tat</div>
+          <div class="score-big" id="score-opp">0</div>
+          <div class="score-label">points</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="round-info">
+        <h3 id="round-heading">Round 1 of 10</h3>
+        <p id="play-status">Choose your move below to begin.</p>
+        <div class="move-btns">
+          <button class="btn-coop" id="btn-coop" onclick="playMove('c')">🤝 Cooperate</button>
+          <button class="btn-defect" id="btn-defect" onclick="playMove('d')">🗡️ Defect</button>
+        </div>
+        <div class="outcome-flash" id="outcome-flash"></div>
+        <div id="game-over-area"></div>
+      </div>
+
+      <div class="round-info" style="margin-top:1rem">
+        <h3>Move History</h3>
+        <div id="round-log"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- TOURNAMENT -->
+<section id="tournament">
+  <p class="section-label">Simulation</p>
+  <h2>Run a Tournament</h2>
+  <p>
+    All strategies compete against each other in a round-robin. Every pair plays
+    the specified number of rounds. The winner is the strategy with the highest
+    cumulative score across all matchups.
+  </p>
+  <div class="tournament-controls">
+    <label>Rounds per matchup:
+      <input type="number" id="t-rounds" value="100" min="10" max="1000" step="10">
+    </label>
+    <button class="btn btn-primary" onclick="runTournament()">▶ Run Tournament</button>
+    <span id="t-status" style="color:var(--muted);font-size:0.9rem"></span>
+  </div>
+
+  <div id="tournament-results">
+    <h3 style="margin-bottom:1rem; color:var(--text)">Final Standings</h3>
+    <div id="t-standings"></div>
+
+    <h3 style="margin: 2rem 0 0.75rem; color:var(--text)">Head-to-Head Matrix</h3>
+    <p style="font-size:0.85rem">Each cell shows your row strategy's score vs. the column strategy. Greener = more points.</p>
+    <div id="matchup-matrix"></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- STRATEGIES -->
+<section id="strategies">
+  <p class="section-label">Contestants</p>
+  <h2>The Strategies</h2>
+  <p>Nine strategies enter the tournament, each embodying a different philosophy about trust, revenge, and forgiveness.</p>
+  <div class="strategy-grid">
+    <div class="strat-card">
+      <span class="strat-tag tag-coop">Cooperative</span>
+      <h3>Always Cooperate</h3>
+      <p>Never defects. The ideal partner — but completely exploitable by anyone who defects.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-defect">Aggressive</span>
+      <h3>Always Defect</h3>
+      <p>Never cooperates. Exploits nice players but ends up in mutual defection against everyone else.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-adaptive">Adaptive</span>
+      <h3>Tit for Tat</h3>
+      <p>Starts by cooperating, then copies the opponent's last move exactly. Simple, forgiving, robust — and <em>famously</em> effective in tournaments.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-adaptive">Adaptive</span>
+      <h3>Forgiving TFT</h3>
+      <p>Like Tit for Tat, but has a 10% chance to forgive a defection — helping break cycles of mutual punishment.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-defect">Punisher</span>
+      <h3>Grim Trigger</h3>
+      <p>Cooperates until the opponent defects once — then defects <em>forever</em>. Maximum deterrence, zero forgiveness.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-adaptive">Adaptive</span>
+      <h3>Pavlov</h3>
+      <p>Win-stay, lose-shift: if the last round was good (mutual coop or lucky defection), repeat it. If bad, switch. Learns from outcomes.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-adaptive">Adaptive</span>
+      <h3>Soft Majority</h3>
+      <p>Counts the opponent's cooperations vs. defections. Cooperates as long as the opponent has cooperated at least as often as they've defected.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-adaptive">Adaptive</span>
+      <h3>Hard Majority</h3>
+      <p>Like Soft Majority but stricter — defects the moment the opponent's defection count meets or exceeds their cooperation count.</p>
+    </div>
+    <div class="strat-card">
+      <span class="strat-tag tag-random">Random</span>
+      <h3>Random</h3>
+      <p>Flips a coin each round — 50/50 cooperate or defect. Unpredictable, impossible to exploit or cooperate with reliably.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- WHY IT MATTERS -->
+<section id="why">
+  <p class="section-label">The Bigger Picture</p>
+  <h2>Why It Matters</h2>
+  <p>The Prisoner's Dilemma isn't just a game — it's a lens for understanding cooperation and conflict across every domain of life.</p>
+  <div class="why-grid">
+    <div class="why-card">
+      <h3>Economics & Business</h3>
+      <p>Price wars, trade agreements, salary negotiations — competing firms often end up in mutual defection despite cooperation being better for everyone.</p>
+    </div>
+    <div class="why-card">
+      <h3>Politics & Diplomacy</h3>
+      <p>Arms races between nations mirror mutual defection. Treaties are attempts to enforce cooperation through repeated interaction and reputation.</p>
+    </div>
+    <div class="why-card">
+      <h3>Biology & Evolution</h3>
+      <p>Robert Axelrod's famous computer tournaments showed that Tit for Tat — a cooperative, retaliatory strategy — outcompetes purely selfish strategies over time, explaining how altruism can evolve.</p>
+    </div>
+    <div class="why-card">
+      <h3>Everyday Life</h3>
+      <p>Splitting chores, merging in traffic, returning a favor — human social behavior is full of Prisoner's Dilemmas solved (and unsolved) every day.</p>
+    </div>
+    <div class="why-card">
+      <h3>Climate Change</h3>
+      <p>Every nation benefits from others reducing emissions while doing nothing themselves. The global climate crisis is a Prisoner's Dilemma at planetary scale.</p>
+    </div>
+    <div class="why-card">
+      <h3>The Key Insight</h3>
+      <p>When the game is repeated and players have memory, <strong>cooperation can be the rational choice</strong>. The shadow of the future changes everything.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer>
+  <p>Built from a Java tournament simulator · Exploring game theory through interactive simulation</p>
+  <p style="margin-top:0.5rem">Robert Axelrod · <em>The Evolution of Cooperation</em> (1984) · the foundational text</p>
+</footer>
+
+<script>
+// ─── STRATEGIES ───────────────────────────────────────────────────────────
+
+const PAYOFFS = {
+  cc: [3, 3],
+  cd: [0, 5],
+  dc: [5, 0],
+  dd: [1, 1],
+};
+
+function getPayoff(myMove, oppMove) {
+  return PAYOFFS[myMove + oppMove];
+}
+
+// Strategy factory: returns a function(myHistory, oppHistory) => 'c' | 'd'
+// myHistory[i] = my move in round i, oppHistory[i] = opp move in round i
+
+const Strategies = {
+  AlwaysC: {
+    name: 'Always Cooperate',
+    move: () => 'c',
+  },
+  AlwaysD: {
+    name: 'Always Defect',
+    move: () => 'd',
+  },
+  TitForTat: {
+    name: 'Tit for Tat',
+    move: (myH, oppH) => oppH.length === 0 ? 'c' : oppH[oppH.length - 1],
+  },
+  TenPercentTFT: {
+    name: 'Forgiving TFT',
+    move: (myH, oppH) => {
+      if (oppH.length === 0) return 'c';
+      const last = oppH[oppH.length - 1];
+      if (last === 'd' && Math.random() < 0.1) return 'c';
+      return last;
+    },
+  },
+  GrimTrigger: {
+    name: 'Grim Trigger',
+    move: (myH, oppH) => oppH.includes('d') ? 'd' : 'c',
+  },
+  Pavlov: {
+    name: 'Pavlov',
+    move: (myH, oppH) => {
+      if (myH.length === 0) return 'c';
+      const lastMy = myH[myH.length - 1];
+      const lastOpp = oppH[oppH.length - 1];
+      // Win = mutual coop or I defected they cooperated
+      const win = (lastMy === 'c' && lastOpp === 'c') || (lastMy === 'd' && lastOpp === 'c');
+      return win ? lastMy : (lastMy === 'c' ? 'd' : 'c');
+    },
+  },
+  SoftMajority: {
+    name: 'Soft Majority',
+    move: (myH, oppH) => {
+      const coops = oppH.filter(m => m === 'c').length;
+      const defects = oppH.filter(m => m === 'd').length;
+      return coops >= defects ? 'c' : 'd';
+    },
+  },
+  HardMajority: {
+    name: 'Hard Majority',
+    move: (myH, oppH) => {
+      const coops = oppH.filter(m => m === 'c').length;
+      const defects = oppH.filter(m => m === 'd').length;
+      return defects >= coops ? 'd' : 'c';
+    },
+  },
+  GoRandom: {
+    name: 'Random',
+    move: () => Math.random() < 0.5 ? 'c' : 'd',
+  },
+};
+
+const TOURNAMENT_STRATEGIES = [
+  'TitForTat', 'TenPercentTFT', 'GrimTrigger', 'Pavlov',
+  'SoftMajority', 'HardMajority', 'AlwaysC', 'AlwaysD', 'GoRandom'
+];
+
+// ─── PLAY SECTION ──────────────────────────────────────────────────────────
+
+let gameState = null;
+
+function initGame() {
+  const stratKey = document.getElementById('opponent-select').value;
+  gameState = {
+    round: 1,
+    totalRounds: 10,
+    scoreYou: 0,
+    scoreOpp: 0,
+    myHistory: [],
+    oppHistory: [],
+    stratKey,
+  };
+  document.getElementById('score-you').textContent = '0';
+  document.getElementById('score-opp').textContent = '0';
+  document.getElementById('round-log').innerHTML = '';
+  document.getElementById('outcome-flash').textContent = '';
+  document.getElementById('game-over-area').innerHTML = '';
+  document.getElementById('round-heading').textContent = 'Round 1 of 10';
+  document.getElementById('play-status').textContent = 'Choose your move below to begin.';
+  document.getElementById('btn-coop').disabled = false;
+  document.getElementById('btn-defect').disabled = false;
+  document.getElementById('opponent-name').textContent = Strategies[stratKey].name;
+}
+
+function playMove(myMove) {
+  if (!gameState) { initGame(); }
+  if (gameState.round > gameState.totalRounds) return;
+
+  const strat = Strategies[gameState.stratKey];
+  const oppMove = strat.move(gameState.oppHistory, gameState.myHistory); // note: reversed for opponent's perspective
+
+  const [myPts, oppPts] = getPayoff(myMove, oppMove);
+  gameState.scoreYou += myPts;
+  gameState.scoreOpp += oppPts;
+  gameState.myHistory.push(myMove);
+  gameState.oppHistory.push(oppMove);
+
+  document.getElementById('score-you').textContent = gameState.scoreYou;
+  document.getElementById('score-opp').textContent = gameState.scoreOpp;
+
+  // outcome message
+  const flash = document.getElementById('outcome-flash');
+  if (myMove === 'c' && oppMove === 'c') {
+    flash.style.color = 'var(--coop)';
+    flash.textContent = '🤝 Mutual Cooperation! +3 / +3';
+  } else if (myMove === 'c' && oppMove === 'd') {
+    flash.style.color = 'var(--defect)';
+    flash.textContent = '😡 You were betrayed! +0 / +5';
+  } else if (myMove === 'd' && oppMove === 'c') {
+    flash.style.color = 'var(--gold)';
+    flash.textContent = '😈 You betrayed them! +5 / +0';
+  } else {
+    flash.style.color = 'var(--muted)';
+    flash.textContent = '😤 Mutual Defection — +1 / +1';
+  }
+
+  // log entry
+  const log = document.getElementById('round-log');
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `<span class="log-round">#${gameState.round}</span>
+    <span class="${myMove==='c'?'move-c':'move-d'}">${myMove==='c'?'Coop':'Defect'}</span>
+    <span style="color:var(--muted);font-size:0.75rem">vs</span>
+    <span class="${oppMove==='c'?'move-c':'move-d'}">${oppMove==='c'?'Coop':'Defect'}</span>
+    <span class="log-pts">+${myPts} / +${oppPts}</span>`;
+  log.prepend(row);
+
+  gameState.round++;
+
+  if (gameState.round > gameState.totalRounds) {
+    document.getElementById('btn-coop').disabled = true;
+    document.getElementById('btn-defect').disabled = true;
+    document.getElementById('round-heading').textContent = 'Game Over!';
+    document.getElementById('play-status').textContent = '';
+    showGameOver();
+  } else {
+    document.getElementById('round-heading').textContent = `Round ${gameState.round} of ${gameState.totalRounds}`;
+  }
+}
+
+function showGameOver() {
+  const you = gameState.scoreYou, opp = gameState.scoreOpp;
+  let emoji, text, sub;
+  if (you > opp) { emoji = '🏆'; text = 'You Win!'; sub = `${you} vs ${opp} — well played.`; }
+  else if (you < opp) { emoji = '😔'; text = 'You Lost'; sub = `${you} vs ${opp} — try a different approach.`; }
+  else { emoji = '🤝'; text = 'It\'s a Tie!'; sub = `Both scored ${you} points.`; }
+
+  const maxPossible = gameState.totalRounds * 3;
+  const coopRate = (gameState.myHistory.filter(m=>m==='c').length / gameState.totalRounds * 100).toFixed(0);
+
+  document.getElementById('game-over-area').innerHTML = `
+    <div class="game-over-banner">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-text">${text}</div>
+      <div class="result-sub">${sub}</div>
+      <div class="result-sub" style="margin-top:0.5rem">
+        Your cooperation rate: <strong style="color:var(--coop)">${coopRate}%</strong> ·
+        Max possible: ${maxPossible}
+      </div>
+      <button class="btn btn-outline" style="margin-top:1rem" onclick="initGame()">Play Again</button>
+    </div>`;
+}
+
+// initialize on page load
+document.getElementById('opponent-select').addEventListener('change', () => { gameState = null; initGame(); });
+initGame();
+
+// ─── TOURNAMENT ─────────────────────────────────────────────────────────────
+
+function runContest(stratA, stratB, numRounds) {
+  const myHistA = [], oppHistA = [];
+  const myHistB = [], oppHistB = [];
+  let scoreA = 0, scoreB = 0;
+
+  for (let i = 0; i < numRounds; i++) {
+    const moveA = Strategies[stratA].move(myHistA, oppHistA);
+    const moveB = Strategies[stratB].move(myHistB, oppHistB);
+    const [pA, pB] = getPayoff(moveA, moveB);
+    scoreA += pA; scoreB += pB;
+    myHistA.push(moveA); oppHistA.push(moveB);
+    myHistB.push(moveB); oppHistB.push(moveA);
+  }
+  return [scoreA, scoreB];
+}
+
+function runTournament() {
+  const numRounds = parseInt(document.getElementById('t-rounds').value) || 100;
+  const strats = TOURNAMENT_STRATEGIES;
+  const scores = {};
+  const matrix = {};
+
+  strats.forEach(s => { scores[s] = 0; matrix[s] = {}; });
+
+  // Round robin
+  for (let i = 0; i < strats.length; i++) {
+    for (let j = 0; j < strats.length; j++) {
+      if (i === j) { matrix[strats[i]][strats[j]] = null; continue; }
+      const [sA, sB] = runContest(strats[i], strats[j], numRounds);
+      matrix[strats[i]][strats[j]] = sA;
+      scores[strats[i]] += sA;
+    }
+  }
+
+  // Sort by score
+  const sorted = strats.slice().sort((a, b) => scores[b] - scores[a]);
+  const maxScore = scores[sorted[0]];
+  const maxPossible = numRounds * 3 * (strats.length - 1);
+
+  // Render standings
+  const standingsEl = document.getElementById('t-standings');
+  standingsEl.innerHTML = '';
+  sorted.forEach((s, idx) => {
+    const pct = (scores[s] / maxPossible * 100).toFixed(1);
+    const rankClass = idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? 'bronze' : '';
+    const row = document.createElement('div');
+    row.className = 't-result-row';
+    row.style.animationDelay = `${idx * 60}ms`;
+    row.innerHTML = `
+      <span class="t-rank ${rankClass}">${idx+1}</span>
+      <span class="t-name">${Strategies[s].name}</span>
+      <div class="t-bar-wrap"><div class="t-bar" style="width:0%" data-pct="${scores[s]/maxScore*100}"></div></div>
+      <span class="t-pct">${pct}%</span>
+      <span class="t-pts">${scores[s].toLocaleString()} pts</span>`;
+    standingsEl.appendChild(row);
+  });
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.t-bar').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+  }, 100);
+
+  // Render matchup matrix
+  renderMatrix(strats, sorted, matrix, numRounds);
+
+  document.getElementById('tournament-results').style.display = 'block';
+  document.getElementById('t-status').textContent = `Done — ${strats.length} strategies · ${numRounds} rounds each`;
+  document.getElementById('tournament-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderMatrix(strats, sorted, matrix, numRounds) {
+  const el = document.getElementById('matchup-matrix');
+  const maxCell = numRounds * 5;
+  const minCell = numRounds * 0;
+
+  // Build grid with CSS grid
+  const size = sorted.length;
+  let html = `<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:3px">`;
+
+  // Header row
+  html += '<tr><td style="width:120px"></td>';
+  sorted.forEach(s => {
+    html += `<td style="width:28px;font-size:0.6rem;color:var(--muted);text-align:center;vertical-align:bottom;padding-bottom:4px;writing-mode:vertical-lr;transform:rotate(180deg)">${Strategies[s].name.substring(0,12)}</td>`;
+  });
+  html += '</tr>';
+
+  sorted.forEach(rowS => {
+    html += `<tr><td style="font-size:0.7rem;color:var(--muted);text-align:right;padding-right:6px;white-space:nowrap">${Strategies[rowS].name.substring(0,14)}</td>`;
+    sorted.forEach(colS => {
+      if (rowS === colS) {
+        html += `<td style="width:28px;height:28px;background:var(--border);border-radius:3px"></td>`;
+      } else {
+        const score = matrix[rowS][colS];
+        const t = (score - minCell) / (maxCell - minCell);
+        const r = Math.round(t * 0 + (1-t) * 180);
+        const g = Math.round(t * 212 + (1-t) * 30);
+        const b = Math.round(t * 170 + (1-t) * 60);
+        const bg = `rgba(${r},${g},${b},0.7)`;
+        html += `<td title="${Strategies[rowS].name} vs ${Strategies[colS].name}: ${score}" style="width:28px;height:28px;background:${bg};border-radius:3px;cursor:default"></td>`;
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</table></div>';
+  el.innerHTML = html;
+}
+</script>
+</body>
+</html>
