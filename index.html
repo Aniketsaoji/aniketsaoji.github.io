@@ -45,14 +45,29 @@
 
       <section class="home-twitter">
         <h2>Tweets</h2>
-        <a class="twitter-timeline"
-           data-height="320"
-           data-theme="light"
-           data-chrome="noheader nofooter noborders"
-           href="https://x.com/aniketsaoji">
-          Tweets by aniketsaoji
-        </a>
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <div id="tweets-list"></div>
+        <script>
+          (async () => {
+            const container = document.getElementById('tweets-list');
+            try {
+              const res = await fetch('tweets.json');
+              const tweets = await res.json();
+              if (!tweets.length) {
+                container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">@aniketsaoji on X</a>';
+                return;
+              }
+              container.innerHTML = tweets.map(t => {
+                const date = t.pubDate ? new Date(t.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                return `<a class="tweet-card" href="${t.link}" target="_blank" rel="noopener">
+                  <span class="tweet-text">${t.title}</span>
+                  ${date ? `<span class="tweet-date">${date}</span>` : ''}
+                </a>`;
+              }).join('');
+            } catch {
+              container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">@aniketsaoji on X</a>';
+            }
+          })();
+        </script>
       </section>
 
       <section class="home-substack">

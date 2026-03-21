@@ -1,0 +1,68 @@
+name: Update Tweets
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch tweets from nitter RSS
+        run: |
+          SUCCESS=false
+          for INSTANCE in nitter.privacydev.net nitter.poast.org nitter.1d4.us nitter.net; do
+            echo "Trying $INSTANCE..."
+            if curl -sf --max-time 10 "https://$INSTANCE/aniketsaoji/rss" -o rss.xml; then
+              echo "Success: $INSTANCE"
+              SUCCESS=true
+              break
+            fi
+          done
+
+          if [ "$SUCCESS" = false ]; then
+            echo "All nitter instances failed, keeping existing tweets.json"
+            exit 0
+          fi
+
+          node -e "
+            const fs = require('fs');
+            const xml = fs.readFileSync('rss.xml', 'utf8');
+            const items = [];
+            const re = /<item>([\s\S]*?)<\/item>/g;
+            let m;
+            while ((m = re.exec(xml)) !== null) {
+              const block = m[1];
+              const get = (tag) => {
+                const r = block.match(new RegExp('<' + tag + '>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/' + tag + '>'));
+                return r ? r[1].trim() : '';
+              };
+              const link = get('link');
+              const pubDate = get('pubDate');
+              const title = get('title');
+              // description contains the tweet HTML from nitter
+              const descMatch = block.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/);
+              const desc = descMatch ? descMatch[1].trim() : '';
+              if (link && title) {
+                items.push({ title, link, pubDate, description: desc });
+              }
+            }
+            const tweets = items.slice(0, 5);
+            fs.writeFileSync('tweets.json', JSON.stringify(tweets, null, 2));
+            console.log('Saved', tweets.length, 'tweets');
+          "
+
+      - name: Commit if changed
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add tweets.json
+          git diff --staged --quiet || git commit -m "Update tweets" && git push

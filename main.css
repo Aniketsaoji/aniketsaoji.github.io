@@ -161,6 +161,39 @@ body.home {
   gap: 0.6rem;
 }
 
+.tweet-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s;
+}
+
+.tweet-card:hover {
+  border-color: #bbb;
+}
+
+.tweet-text {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+.tweet-date {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+#tweets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
 .substack-card {
   display: flex;
   flex-direction: row;
