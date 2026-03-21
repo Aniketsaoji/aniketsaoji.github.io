@@ -1,9 +1,12 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700);
 @import url(https://fonts.googleapis.com/css?family=Dosis);
 
-html, body{
+html, body {
   height: 100%;
   margin: 0;
+}
+
+body {
   background-color: #4F2582;
 }
 
@@ -15,16 +18,16 @@ body.home {
 }
 
 .home-container {
-  max-width: 680px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 1.5rem 1.5rem;
 }
 
 .home-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .home-header h1 {
@@ -50,7 +53,7 @@ body.home {
 }
 
 .home-intro {
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .home-intro p {
@@ -102,8 +105,24 @@ body.home {
   line-height: 1.5;
 }
 
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "projects twitter"
+    "projects substack";
+  gap: 1rem 2rem;
+  align-items: start;
+}
+
+.home-projects {
+  grid-area: projects;
+}
+
 .home-twitter {
-  margin-top: 3rem;
+  grid-area: twitter;
+  margin-top: 0;
 }
 
 .home-twitter h2 {
@@ -123,7 +142,8 @@ body.home {
 }
 
 .home-substack {
-  margin-top: 3rem;
+  grid-area: substack;
+  margin-top: 0;
 }
 
 .home-substack h2 {
