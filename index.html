@@ -4,12 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aniket Saoji</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="main.css">
 </head>
 <body class="home">
   <main class="home-container">
     <header class="home-header">
-      <h1>Aniket Saoji</h1>
+      <div class="home-name">Aniket Saoji</div>
       <nav>
         <a href="#projects">Projects</a>
         <a href="https://github.com/aniketsaoji" target="_blank" rel="noopener">GitHub</a>
@@ -22,7 +25,7 @@
 
     <div class="home-grid">
       <section id="projects" class="home-projects">
-        <h2>Projects</h2>
+        <div class="section-head"><span class="section-num">01</span><h2>Projects</h2></div>
         <div class="project-grid">
           <a class="project-card" href="beer-pong.html">
             <h3>311 Malt Madness</h3>
@@ -44,16 +47,16 @@
       </section>
 
       <section class="home-twitter">
-        <h2>Tweets</h2>
+        <div class="section-head"><span class="section-num">02</span><h2>Tweets</h2></div>
         <div id="tweets-list"></div>
         <script>
           (async () => {
             const container = document.getElementById('tweets-list');
             try {
               const res = await fetch('tweets.json');
-              const tweets = await res.json();
+              const tweets = (await res.json()).slice(0, 3);
               if (!tweets.length) {
-                container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">@aniketsaoji on X</a>';
+                container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener" class="tweet-card"><span class="tweet-text">@aniketsaoji on X</span></a>';
                 return;
               }
               container.innerHTML = tweets.map(t => {
@@ -64,14 +67,14 @@
                 </a>`;
               }).join('');
             } catch {
-              container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">@aniketsaoji on X</a>';
+              container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener" class="tweet-card"><span class="tweet-text">@aniketsaoji on X</span></a>';
             }
           })();
         </script>
       </section>
 
       <section class="home-substack">
-        <h2>Writing</h2>
+        <div class="section-head"><span class="section-num">03</span><h2>Writing</h2></div>
         <div id="substack-posts">Loading posts…</div>
       </section>
     </div>
