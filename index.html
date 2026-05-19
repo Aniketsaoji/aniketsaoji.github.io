@@ -4,80 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aniket Saoji</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="main.css">
 </head>
 <body class="home">
   <main class="home-container">
     <header class="home-header">
-      <div class="home-name">Aniket Saoji</div>
-      <nav>
-        <a href="#projects">Projects</a>
-        <a href="https://github.com/aniketsaoji" target="_blank" rel="noopener">GitHub</a>
-      </nav>
+      <h1>Hi, I'm Aniket.</h1>
     </header>
 
-    <section class="home-intro">
-      <p>Hi, I'm Aniket.</p>
+    <section class="home-intro" aria-label="Introduction">
+      <p>I love software: the craft of building it, the design of beautiful systems, and the multi-dimensional problems that sit between users, products, and businesses. I write down my thoughts when I can.</p>
     </section>
 
-    <div class="home-grid">
-      <section id="projects" class="home-projects">
-        <div class="section-head"><span class="section-num">01</span><h2>Projects</h2></div>
-        <div class="project-grid">
-          <a class="project-card" href="beer-pong.html">
-            <h3>311 Malt Madness</h3>
-            <p>Beer pong tournament bracket for our apartment building's competition.</p>
-          </a>
-          <a class="project-card" href="prisoner_dilemma_tournament.html">
-            <h3>Prisoner's Dilemma Tournament</h3>
-            <p>A tournament I ran in school pitting different game theory strategies against each other in iterated prisoner's dilemma matches.</p>
-          </a>
-          <a class="project-card" href="https://momsrdope.com" target="_blank" rel="noopener">
-            <h3>momsrdope</h3>
-            <p>Built and scaled a T-shirt brand to $3,000 in profit, fully donated to the Equal Justice Initiative. Grew social media presence to 10,000 followers.</p>
-          </a>
-          <a class="project-card" href="https://midnightbook.club" target="_blank" rel="noopener">
-            <h3>Midnight Book Club</h3>
-            <p>A bi-weekly forum at 9pm (Midnight EST) for young professionals to discuss philosophy, science, social justice, and current events.</p>
-          </a>
-        </div>
-      </section>
+    <section id="links" class="home-section">
+      <h2>Links</h2>
+      <ul class="link-list">
+        <li>Email <a href="mailto:aniketvsaoji@gmail.com">aniketvsaoji@gmail.com</a></li>
+        <li>GitHub <a href="https://github.com/aniketsaoji" target="_blank" rel="noopener">aniketsaoji</a></li>
+        <li>Twitter <a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">aniketsaoji</a></li>
+        <li>Substack <a href="https://aniketsaoji.substack.com" target="_blank" rel="noopener">aniketsaoji</a></li>
+      </ul>
+    </section>
 
-      <section class="home-twitter">
-        <div class="section-head"><span class="section-num">02</span><h2>Tweets</h2></div>
-        <div id="tweets-list"></div>
-        <script>
-          (async () => {
-            const container = document.getElementById('tweets-list');
-            try {
-              const res = await fetch('tweets.json');
-              const tweets = (await res.json()).slice(0, 3);
-              if (!tweets.length) {
-                container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener" class="tweet-card"><span class="tweet-text">@aniketsaoji on X</span></a>';
-                return;
-              }
-              container.innerHTML = tweets.map(t => {
-                const date = t.pubDate ? new Date(t.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                return `<a class="tweet-card" href="${t.link}" target="_blank" rel="noopener">
-                  <span class="tweet-text">${t.title}</span>
-                  ${date ? `<span class="tweet-date">${date}</span>` : ''}
-                </a>`;
-              }).join('');
-            } catch {
-              container.innerHTML = '<a href="https://x.com/aniketsaoji" target="_blank" rel="noopener" class="tweet-card"><span class="tweet-text">@aniketsaoji on X</span></a>';
+    <section id="projects" class="home-section">
+      <h2>Projects</h2>
+      <ul class="link-list project-list">
+        <li>
+          <a href="beer-pong.html">311 Malt Madness</a>
+          <span>Beer pong tournament bracket for our apartment building's competition.</span>
+        </li>
+        <li>
+          <a href="prisoner_dilemma_tournament.html">Prisoner's Dilemma Tournament</a>
+          <span>A school tournament pitting game theory strategies against each other.</span>
+        </li>
+        <li>
+          <a href="https://momsrdope.com" target="_blank" rel="noopener">momsrdope</a>
+          <span>A T-shirt brand that raised money for the Equal Justice Initiative.</span>
+        </li>
+        <li>
+          <a href="https://midnightbook.club" target="_blank" rel="noopener">Midnight Book Club</a>
+          <span>A bi-weekly forum for discussing philosophy, science, justice, and current events.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section id="writing" class="home-section">
+      <h2>Writing</h2>
+      <div id="substack-posts">Loading posts...</div>
+    </section>
+
+    <section class="home-section home-twitter">
+      <h2>Tweets</h2>
+      <div id="tweets-list"></div>
+      <script>
+        (async () => {
+          const container = document.getElementById('tweets-list');
+          try {
+            const res = await fetch('tweets.json');
+            const tweets = (await res.json()).slice(0, 3);
+            if (!tweets.length) {
+              container.innerHTML = '<ul class="link-list"><li><a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">@aniketsaoji on X</a></li></ul>';
+              return;
             }
-          })();
-        </script>
-      </section>
-
-      <section class="home-substack">
-        <div class="section-head"><span class="section-num">03</span><h2>Writing</h2></div>
-        <div id="substack-posts">Loading posts…</div>
-      </section>
-    </div>
+            container.innerHTML = `<ul class="link-list tweet-list">${tweets.map(t => {
+              const date = t.pubDate ? new Date(t.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+              return `<li>
+                <a href="${t.link}" target="_blank" rel="noopener">${t.title}</a>
+                ${date ? `<span>${date}</span>` : ''}
+              </li>`;
+            }).join('')}</ul>`;
+          } catch {
+            container.innerHTML = '<ul class="link-list"><li><a href="https://x.com/aniketsaoji" target="_blank" rel="noopener">@aniketsaoji on X</a></li></ul>';
+          }
+        })();
+      </script>
+    </section>
   </main>
 
   <script>
@@ -89,16 +90,16 @@
         const data = await res.json();
         const posts = (data.items || []).slice(0, 4);
         const container = document.getElementById('substack-posts');
-        if (!posts.length) { container.textContent = 'No posts yet.'; return; }
-        container.innerHTML = posts.map(p => `
-          <a class="substack-card" href="${p.link}" target="_blank" rel="noopener">
-            ${p.thumbnail ? `<img class="substack-thumb" src="${p.thumbnail}" alt="">` : ''}
-            <span class="substack-text">
-              <span class="substack-title">${p.title}</span>
-              <span class="substack-date">${new Date(p.pubDate).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</span>
-            </span>
-          </a>
-        `).join('');
+        if (!posts.length) {
+          container.textContent = 'No posts yet.';
+          return;
+        }
+        container.innerHTML = `<ul class="link-list writing-list">${posts.map(p => `
+          <li>
+            <a href="${p.link}" target="_blank" rel="noopener">${p.title}</a>
+            <span>${new Date(p.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </li>
+        `).join('')}</ul>`;
       } catch {
         document.getElementById('substack-posts').textContent = 'Could not load posts.';
       }
