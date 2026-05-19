@@ -131,6 +131,14 @@ body.home {
   margin-top: 1px !important;
 }
 
+.project-list .project-year {
+  color: var(--muted) !important;
+  display: inline !important;
+  font-size: 14px !important;
+  line-height: inherit !important;
+  margin: 0 !important;
+}
+
 #substack-posts {
   color: var(--muted) !important;
   font-size: 14px !important;
