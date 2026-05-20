@@ -98,7 +98,7 @@
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const posts = (data.items || []).slice(0, 4);
+        const posts = data.items || [];
         const container = document.getElementById('substack-posts');
         if (!posts.length) {
           container.textContent = 'No posts yet.';
